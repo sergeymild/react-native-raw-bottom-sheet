@@ -5,7 +5,7 @@ import {
   KeyboardAvoidingView,
   Modal,
   PanResponder,
-  PanResponderInstance,
+  PanResponderInstance, Platform,
   StyleProp,
   TouchableOpacity,
   View,
@@ -28,9 +28,10 @@ const SUPPORTED_ORIENTATIONS: Array<
   'landscape-right',
 ]
 
+const windowHeight = Dimensions.get('window').height
 const getHeightFromPercent = (percent: string) => {
   const percentInt = parseInt(percent.replace('%', ''), 10)
-  const height = Dimensions.get('window').height
+  const height = windowHeight
   return height - height * ((100 - percentInt) / 100.0)
 }
 
@@ -75,7 +76,6 @@ class RBSheet extends PureComponent<Props, State> {
           ? getHeightFromPercent(this.props.height)
           : this.props.height ?? 260,
     }
-
     this.createPanResponder(props)
   }
 
@@ -188,7 +188,7 @@ class RBSheet extends PureComponent<Props, State> {
             if (this.state.wasLayout) return
             const height = this.props.height
               ? this.state.dialogHeight
-              : Math.min(this.state.dialogHeight, e.nativeEvent.layout.height) +
+              : Math.min(windowHeight * 0.9, e.nativeEvent.layout.height) +
                 21
             this.setState(
               {wasLayout: true, dialogHeight: height},
