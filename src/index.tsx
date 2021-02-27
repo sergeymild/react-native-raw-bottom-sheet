@@ -191,7 +191,6 @@ class RBSheet extends PureComponent<Props, State> {
               ? this.state.dialogHeight
               : Math.min(windowHeight * 0.9, e.nativeEvent.layout.height) +
                 21
-            console.log('===', height, this.state.dialogHeight)
             this.setState(
               {wasLayout: true, dialogHeight: height},
               this.animateShow,
