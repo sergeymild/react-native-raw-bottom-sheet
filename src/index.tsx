@@ -184,12 +184,14 @@ class RBSheet extends PureComponent<Props, State> {
         ]}>
         {this.renderCloseDraggableIcon()}
         <View
+          style={this.state.wasLayout ? {height: this.state.dialogHeight} : undefined}
           onLayout={(e) => {
             if (this.state.wasLayout) return
             const height = this.props.height
               ? this.state.dialogHeight
               : Math.min(windowHeight * 0.9, e.nativeEvent.layout.height) +
                 21
+            console.log('===', height, this.state.dialogHeight)
             this.setState(
               {wasLayout: true, dialogHeight: height},
               this.animateShow,
