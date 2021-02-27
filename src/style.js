@@ -1,32 +1,33 @@
-import { StyleSheet } from "react-native";
+import {StyleSheet} from 'react-native'
 
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    backgroundColor: "#00000077"
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
   },
   mask: {
     flex: 1,
-    backgroundColor: "transparent"
+    backgroundColor: 'transparent',
   },
   container: {
-    backgroundColor: "#fff",
-    width: "100%",
-    height: 0,
-    overflow: "hidden"
+    backgroundColor: '#fff',
+    width: '100%',
+    overflow: 'hidden',
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
   },
   draggableContainer: {
-    width: "100%",
-    alignItems: "center",
-    backgroundColor: "transparent"
+    width: '100%',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
   },
   draggableIcon: {
     width: 35,
     height: 5,
     borderRadius: 5,
     margin: 10,
-    backgroundColor: "#ccc"
-  }
-});
+    backgroundColor: '#ccc',
+  },
+})
 
-export default styles;
+export default styles
