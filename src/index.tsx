@@ -63,6 +63,7 @@ interface State {
 }
 
 class RBSheet extends PureComponent<Props, State> {
+  private modalChildRed = React.createRef<View>()
   private panResponder?: PanResponderInstance
   constructor(props: Props) {
     super(props)
@@ -108,6 +109,7 @@ class RBSheet extends PureComponent<Props, State> {
     const {pan} = this.state
     this.panResponder = PanResponder.create({
       onStartShouldSetPanResponder: () => closeOnDragDown ?? true,
+      onMoveShouldSetPanResponder: (e, gestureState) => (closeOnDragDown ?? true) && (Math.abs(gestureState.dx) >= 5 || Math.abs(gestureState.dy) >= 5),
       onPanResponderMove: (e, gestureState) => {
         if (gestureState.dy <= 0) return
         Animated.event([null, {dy: pan.y}], {useNativeDriver: false})(
@@ -179,22 +181,23 @@ class RBSheet extends PureComponent<Props, State> {
         style={[
           panStyle,
           styles.container,
-          {height: this.state.wasLayout ? this.state.animatedHeight : (Platform.OS === 'ios' ? 'auto' : 1)},
+          {height: this.state.wasLayout ? this.state.animatedHeight : (Platform.OS === 'ios' ? 'auto' : 1), maxHeight: getHeightFromPercent('90%')},
           this.props.container,
         ]}>
         {this.renderCloseDraggableIcon()}
         <View
+          ref={this.modalChildRed}
           style={this.state.wasLayout ? {height: this.state.dialogHeight} : undefined}
           onLayout={(e) => {
-            if (this.state.wasLayout) return
-            const height = this.props.height
-              ? this.state.dialogHeight
-              : Math.min(windowHeight * 0.9, e.nativeEvent.layout.height) +
-                21
-            this.setState(
-              {wasLayout: true, dialogHeight: height},
-              this.animateShow,
-            )
+            // if (this.state.wasLayout) return
+            // const height = this.props.height
+            //   ? this.state.dialogHeight
+            //   : Math.min(windowHeight * 0.9, e.nativeEvent.layout.height) +
+            //     21
+            // this.setState(
+            //   {wasLayout: true, dialogHeight: height},
+            //   this.animateShow,
+            // )
           }}>
           {this.props.children}
         </View>
