@@ -11,7 +11,6 @@ const styles = StyleSheet.create({
   },
   container: {
     backgroundColor: '#fff',
-    width: '100%',
     overflow: 'hidden',
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
