@@ -230,8 +230,17 @@ class RBSheet extends PureComponent<Props, State> {
         animationType={animationType}
         visible={modalVisible}
         supportedOrientations={SUPPORTED_ORIENTATIONS}
+        onDismiss={() => {
+          this.setModalVisible(false, () => {
+            this.props.onClose?.()
+          })
+        }}
         onRequestClose={() => {
-          if (closeOnPressBack ?? true) this.setModalVisible(false)
+          if (closeOnPressBack ?? true) {
+            this.setModalVisible(false, () => {
+              this.props.onClose?.()
+            })
+          }
         }}>
         <KeyboardAvoidingView
           enabled={keyboardAvoidingViewEnabled ?? false}
