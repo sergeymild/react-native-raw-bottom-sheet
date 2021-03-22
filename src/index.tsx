@@ -5,12 +5,13 @@ import {
   KeyboardAvoidingView,
   Modal,
   PanResponder,
-  PanResponderInstance, Platform,
+  PanResponderInstance,
   StyleProp,
-  TouchableOpacity,
   View,
   ViewStyle,
 } from 'react-native'
+
+import AppTouchableOpacity from 'src/components/common/AppTouchableOpacity'
 
 import styles from './style'
 
@@ -28,10 +29,9 @@ const SUPPORTED_ORIENTATIONS: Array<
   'landscape-right',
 ]
 
-const windowHeight = Dimensions.get('window').height
 const getHeightFromPercent = (percent: string) => {
   const percentInt = parseInt(percent.replace('%', ''), 10)
-  const height = windowHeight
+  const height = Dimensions.get('window').height
   return height - height * ((100 - percentInt) / 100.0)
 }
 
@@ -63,7 +63,6 @@ interface State {
 }
 
 class RBSheet extends PureComponent<Props, State> {
-  private modalChildRed = React.createRef<View>()
   private panResponder?: PanResponderInstance
   constructor(props: Props) {
     super(props)
@@ -77,6 +76,7 @@ class RBSheet extends PureComponent<Props, State> {
           ? getHeightFromPercent(this.props.height)
           : this.props.height ?? 260,
     }
+
     this.createPanResponder(props)
   }
 
@@ -109,7 +109,6 @@ class RBSheet extends PureComponent<Props, State> {
     const {pan} = this.state
     this.panResponder = PanResponder.create({
       onStartShouldSetPanResponder: () => closeOnDragDown ?? true,
-      onMoveShouldSetPanResponder: (e, gestureState) => (closeOnDragDown ?? true) && (Math.abs(gestureState.dx) >= 5 || Math.abs(gestureState.dy) >= 5),
       onPanResponderMove: (e, gestureState) => {
         if (gestureState.dy <= 0) return
         Animated.event([null, {dy: pan.y}], {useNativeDriver: false})(
@@ -119,7 +118,7 @@ class RBSheet extends PureComponent<Props, State> {
       },
       onPanResponderRelease: (e, gestureState) => {
         if (this.state.dialogHeight / 4 - gestureState.dy < 0) {
-          this.setModalVisible(false)
+          this.setModalVisible(false, () => this.props.onClose?.())
         } else {
           Animated.timing(pan, {
             toValue: {x: 0, y: 0},
@@ -132,7 +131,11 @@ class RBSheet extends PureComponent<Props, State> {
   }
 
   open(callback?: () => void) {
-    if (this.state.modalVisible) return callback?.()
+    const close = () => {
+      callback?.()
+      this.props.onClose?.()
+    }
+    if (this.state.modalVisible) return close()
     this.setModalVisible(true, callback)
   }
 
@@ -181,23 +184,21 @@ class RBSheet extends PureComponent<Props, State> {
         style={[
           panStyle,
           styles.container,
-          {height: this.state.wasLayout ? this.state.animatedHeight : (Platform.OS === 'ios' ? 'auto' : 1), maxHeight: getHeightFromPercent('90%')},
+          {height: this.state.wasLayout ? this.state.animatedHeight : 'auto'},
           this.props.container,
         ]}>
         {this.renderCloseDraggableIcon()}
         <View
-          ref={this.modalChildRed}
-          style={this.state.wasLayout ? {height: this.state.dialogHeight} : undefined}
           onLayout={(e) => {
-            // if (this.state.wasLayout) return
-            // const height = this.props.height
-            //   ? this.state.dialogHeight
-            //   : Math.min(windowHeight * 0.9, e.nativeEvent.layout.height) +
-            //     21
-            // this.setState(
-            //   {wasLayout: true, dialogHeight: height},
-            //   this.animateShow,
-            // )
+            if (this.state.wasLayout) return
+            const height = this.props.height
+              ? this.state.dialogHeight
+              : Math.min(this.state.dialogHeight, e.nativeEvent.layout.height) +
+                21
+            this.setState(
+              {wasLayout: true, dialogHeight: height},
+              this.animateShow,
+            )
           }}>
           {this.props.children}
         </View>
@@ -227,7 +228,7 @@ class RBSheet extends PureComponent<Props, State> {
           enabled={keyboardAvoidingViewEnabled ?? false}
           behavior='padding'
           style={[styles.wrapper, this.props.wrapper]}>
-          <TouchableOpacity
+          <AppTouchableOpacity
             style={styles.mask}
             activeOpacity={1}
             onPress={() => (closeOnPressMask ?? true ? this.close() : null)}
