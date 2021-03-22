@@ -145,7 +145,11 @@ class RBSheet extends PureComponent<Props, State> {
   }
 
   close(callback?: () => void) {
-    if (!this.state.modalVisible) return callback?.()
+    const close = () => {
+      callback?.()
+      this.props.onClose?.()
+    }
+    if (!this.state.modalVisible) return close()
     this.setModalVisible(false, callback)
   }
 
