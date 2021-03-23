@@ -232,6 +232,7 @@ class RBSheet extends PureComponent<Props, State> {
 
     return (
       <Modal
+        statusBarTranslucent
         transparent
         animationType={animationType}
         visible={modalVisible}
