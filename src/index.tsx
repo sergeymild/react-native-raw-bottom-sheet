@@ -185,7 +185,7 @@ class RBSheet extends PureComponent<Props, State> {
           panStyle,
           styles.container,
           {height: this.state.wasLayout ? this.state.animatedHeight : 'auto'},
-          this.state.wasLayout ? undefined : {transform: [{scaleY: -10000}]},
+          this.state.wasLayout ? undefined : {transform: [{translationY: 10000}]},
           this.props.container,
         ]}>
         {this.renderCloseDraggableIcon()}
