@@ -109,11 +109,6 @@ class RBSheet extends PureComponent<Props, State> {
     const {pan} = this.state
     this.panResponder = PanResponder.create({
       onStartShouldSetPanResponder: () => closeOnDragDown ?? true,
-      onMoveShouldSetPanResponder: (e, gestureState) => (
-        (closeOnTouchablesDragDown && closeOnDragDown)
-        && (Math.abs(gestureState.dx) >= 5 
-        || Math.abs(gestureState.dy) >= 5)
-      ),
       onPanResponderMove: (e, gestureState) => {
         if (gestureState.dy <= 0) return
         Animated.event([null, {dy: pan.y}], {useNativeDriver: false})(
@@ -136,11 +131,7 @@ class RBSheet extends PureComponent<Props, State> {
   }
 
   open(callback?: () => void) {
-    const close = () => {
-      callback?.()
-      this.props.onClose?.()
-    }
-    if (this.state.modalVisible) return close()
+    if (this.state.modalVisible) return callback?.()
     this.setModalVisible(true, callback)
   }
 
@@ -194,7 +185,7 @@ class RBSheet extends PureComponent<Props, State> {
           panStyle,
           styles.container,
           {height: this.state.wasLayout ? this.state.animatedHeight : 'auto'},
-          this.state.wasLayout ? undefined : {transform: [{translateY: 10000}]},
+          this.state.wasLayout ? undefined : {transform: [{scaleY: -10000}]},
           this.props.container,
         ]}>
         {this.renderCloseDraggableIcon()}
