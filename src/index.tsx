@@ -1,4 +1,4 @@
-import React, {PureComponent} from 'react'
+import React, { createContext, PureComponent } from "react";
 import {
   Animated,
   Dimensions,
@@ -28,6 +28,12 @@ const SUPPORTED_ORIENTATIONS: Array<
   'landscape-left',
   'landscape-right',
 ]
+
+interface RBContextInterface {
+  readonly setHeight: (height: number) => void
+}
+
+export const RBContext = createContext<RBContextInterface>({setHeight: () => {}})
 
 const getHeightFromPercent = (percent: string) => {
   const percentInt = parseInt(percent.replace('%', ''), 10)
@@ -189,21 +195,30 @@ class RBSheet extends PureComponent<Props, State> {
           this.props.container,
         ]}>
         {this.renderCloseDraggableIcon()}
-        <View
-          onLayout={(e) => {
-            if (this.state.wasLayout) return
-            const height = this.props.height
-              ? this.state.dialogHeight
-              : Math.min(this.state.dialogHeight, e.nativeEvent.layout.height) +
-                21
-            this.setState(
-              {wasLayout: true, dialogHeight: height},
-              this.animateShow,
-            )
-          }}>
-          {this.props.children}
-        </View>
+        {this.props.children}
+        {/*<View*/}
+        {/*  onLayout={(e) => {*/}
+        {/*    if (this.state.wasLayout) return*/}
+        {/*    const height = this.props.height*/}
+        {/*      ? this.state.dialogHeight*/}
+        {/*      : Math.min(this.state.dialogHeight, e.nativeEvent.layout.height) +*/}
+        {/*        21*/}
+        {/*    console.log('----', height, this.state.dialogHeight)*/}
+        {/*    this.setState(*/}
+        {/*      {wasLayout: true, dialogHeight: height},*/}
+        {/*      this.animateShow,*/}
+        {/*    )*/}
+        {/*  }}>*/}
+        {/*  {this.props.children}*/}
+        {/*</View>*/}
       </Animated.View>
+    )
+  }
+
+  setHeight = (height: number) => {
+    this.setState(
+      {wasLayout: true, dialogHeight: height},
+      this.animateShow,
     )
   }
 
@@ -243,7 +258,9 @@ class RBSheet extends PureComponent<Props, State> {
             activeOpacity={1}
             onPress={() => (closeOnPressMask ?? true ? this.close() : null)}
           />
-          {this.renderChildren()}
+          <RBContext.Provider value={this}>
+            {this.renderChildren()}
+          </RBContext.Provider>
         </KeyboardAvoidingView>
       </Modal>
     )
