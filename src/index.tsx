@@ -62,10 +62,12 @@ interface Props {
 
 interface State {
   modalVisible: boolean
-  animatedHeight: Animated.Value
+  animatedHeight: Animated.ValueXY
   pan: Animated.ValueXY
   dialogHeight: number
+  translateY: number
   wasLayout: boolean
+  animateFinished: boolean
 }
 
 class RBSheet extends PureComponent<Props, State> {
@@ -73,8 +75,10 @@ class RBSheet extends PureComponent<Props, State> {
   constructor(props: Props) {
     super(props)
     this.state = {
+      animateFinished: false,
+      translateY: 10000,
       modalVisible: false,
-      animatedHeight: new Animated.Value(0),
+      animatedHeight: new Animated.ValueXY({x: 0, y: 10000}),
       pan: new Animated.ValueXY(),
       wasLayout: false,
       dialogHeight:
@@ -92,20 +96,22 @@ class RBSheet extends PureComponent<Props, State> {
     if (visible) {
       this.setState({modalVisible: visible}, callback)
     } else {
-      Animated.timing(animatedHeight, {
-        useNativeDriver: false,
-        toValue: minClosingHeight ?? 0,
-        duration: closeDuration ?? 250,
-      }).start(() => {
-        pan.setValue({x: 0, y: 0})
-        this.setState(
-          {
-            wasLayout: false,
-            modalVisible: visible,
-            animatedHeight: new Animated.Value(0),
-          },
-          callback,
-        )
+      this.setState({animateFinished: false}, () => {
+        Animated.timing(this.state.animatedHeight, {
+          useNativeDriver: true,
+          toValue: {x: 0, y: this.state.dialogHeight},
+          duration: closeDuration ?? 250,
+        }).start(() => {
+          pan.setValue({x: 0, y: 0})
+          this.setState(
+            {
+              animateFinished: false,
+              wasLayout: false,
+              modalVisible: visible,
+            },
+            callback,
+          )
+        })
       })
     }
   }
@@ -125,12 +131,14 @@ class RBSheet extends PureComponent<Props, State> {
       },
       onPanResponderRelease: (e, gestureState) => {
         if (this.state.dialogHeight / 4 - gestureState.dy < 0) {
-          this.setModalVisible(false, () => this.props.onClose?.())
+          this.setState({animatedHeight: new Animated.ValueXY({x: 0, y: gestureState.dy})}, () => {
+            this.setModalVisible(false, () => this.props.onClose?.())
+          })
         } else {
           Animated.timing(pan, {
             toValue: {x: 0, y: 0},
             duration: 100,
-            useNativeDriver: false,
+            useNativeDriver: true,
           }).start()
         }
       },
@@ -169,11 +177,16 @@ class RBSheet extends PureComponent<Props, State> {
 
   animateShow = () => {
     Animated.timing(this.state.animatedHeight, {
-      useNativeDriver: false,
-      toValue: this.state.dialogHeight,
+      useNativeDriver: true,
+      toValue: {
+        x: 0,
+        y: 0,
+      },
       duration: this.props.openDuration ?? 250,
       isInteraction: true,
-    }).start()
+    }).start(result => {
+      this.setState({animateFinished: true})
+    })
   }
 
   renderChildren() {
@@ -184,41 +197,26 @@ class RBSheet extends PureComponent<Props, State> {
 
     const allowDrag = this.props.dragFromTopOnly ?? false
     const handler = !allowDrag && this.panResponder?.panHandlers
-
     return (
       <Animated.View
         {...handler}
         style={[
           panStyle,
           styles.container,
-          {height: this.state.wasLayout ? this.state.animatedHeight : 'auto'},
-          this.state.wasLayout ? undefined : {transform: [{translateY: 10000}]},
+          {height: this.state.wasLayout ? this.state.dialogHeight : 'auto'},
+          !this.state.animateFinished ? {transform: this.state.animatedHeight.getTranslateTransform()} : undefined,
+
           this.props.container,
         ]}>
         {this.renderCloseDraggableIcon()}
         {this.props.children}
-        {/*<View*/}
-        {/*  onLayout={(e) => {*/}
-        {/*    if (this.state.wasLayout) return*/}
-        {/*    const height = this.props.height*/}
-        {/*      ? this.state.dialogHeight*/}
-        {/*      : Math.min(this.state.dialogHeight, e.nativeEvent.layout.height) +*/}
-        {/*        21*/}
-        {/*    console.log('----', height, this.state.dialogHeight)*/}
-        {/*    this.setState(*/}
-        {/*      {wasLayout: true, dialogHeight: height},*/}
-        {/*      this.animateShow,*/}
-        {/*    )*/}
-        {/*  }}>*/}
-        {/*  {this.props.children}*/}
-        {/*</View>*/}
       </Animated.View>
     )
   }
 
   setHeight = (height: number) => {
     this.setState(
-      {wasLayout: true, dialogHeight: height},
+      {wasLayout: true, dialogHeight: height, animatedHeight: new Animated.ValueXY({x: 0, y: height})},
       this.animateShow,
     )
   }
