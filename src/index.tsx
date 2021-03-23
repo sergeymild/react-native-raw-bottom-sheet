@@ -115,11 +115,7 @@ class RBSheet extends PureComponent<Props, State> {
     const {pan} = this.state
     this.panResponder = PanResponder.create({
       onStartShouldSetPanResponder: () => closeOnDragDown ?? true,
-      onMoveShouldSetPanResponder: (e, gestureState) => (
-        closeOnDragDown
-        && (Math.abs(gestureState.dx) >= 5 
-        || Math.abs(gestureState.dy) >= 5)
-      ),
+      onMoveShouldSetPanResponder: (e, gestureState) => (closeOnDragDown ?? true) && (Math.abs(gestureState.dx) >= 5 || Math.abs(gestureState.dy) >= 5),
       onPanResponderMove: (e, gestureState) => {
         if (gestureState.dy <= 0) return
         Animated.event([null, {dy: pan.y}], {useNativeDriver: false})(
