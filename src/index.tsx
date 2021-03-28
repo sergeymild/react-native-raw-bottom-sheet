@@ -215,7 +215,7 @@ class RBSheet extends PureComponent<Props, State> {
 
   setHeight = (height: number) => {
     this.setState(
-      {wasLayout: true, dialogHeight: height, animatedHeight: new Animated.ValueXY({x: 0, y: height})},
+      {wasLayout: true, dialogHeight: height + 25, animatedHeight: new Animated.ValueXY({x: 0, y: height + 25})},
       this.animateShow,
     )
   }
