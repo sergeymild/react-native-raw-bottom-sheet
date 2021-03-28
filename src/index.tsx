@@ -89,13 +89,13 @@ class RBSheet extends PureComponent<Props, State> {
     this.createPanResponder(props)
   }
 
-  setModalVisible(visible: boolean, y: number, callback?: () => void) {
+  setModalVisible(visible: boolean, y: number | undefined, callback?: () => void) {
     const {minClosingHeight, closeDuration} = this.props
     const {animatedHeight, pan} = this.state
     if (visible) {
       this.setState({modalVisible: visible}, callback)
     } else {
-      this.setState({animateFinished: false, animatedHeight: new Animated.ValueXY({x: 0, y: y})}, () => {
+      this.setState({animateFinished: false, animatedHeight: new Animated.ValueXY({x: 0, y: y ?? 0})}, () => {
         Animated.timing(this.state.animatedHeight, {
           useNativeDriver: true,
           toValue: {x: 0, y: this.state.dialogHeight},
@@ -216,8 +216,9 @@ class RBSheet extends PureComponent<Props, State> {
   }
 
   setHeight = (height: number) => {
+    const maxHeight = Math.min(height + 25, getHeightFromPercent('90%'))
     this.setState(
-      {wasLayout: true, dialogHeight: height + 25, animatedHeight: new Animated.ValueXY({x: 0, y: height + 25})},
+      {wasLayout: true, dialogHeight: maxHeight, animatedHeight: new Animated.ValueXY({x: 0, y: maxHeight})},
       this.animateShow,
     )
   }
