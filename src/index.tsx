@@ -89,13 +89,13 @@ class RBSheet extends PureComponent<Props, State> {
     this.createPanResponder(props)
   }
 
-  setModalVisible(visible: boolean, callback?: () => void) {
+  setModalVisible(visible: boolean, y: number, callback?: () => void) {
     const {minClosingHeight, closeDuration} = this.props
     const {animatedHeight, pan} = this.state
     if (visible) {
       this.setState({modalVisible: visible}, callback)
     } else {
-      this.setState({animateFinished: false, animatedHeight: new Animated.ValueXY({x: 0, y: 0})}, () => {
+      this.setState({animateFinished: false, animatedHeight: new Animated.ValueXY({x: 0, y: y})}, () => {
         Animated.timing(this.state.animatedHeight, {
           useNativeDriver: true,
           toValue: {x: 0, y: this.state.dialogHeight},
@@ -130,9 +130,7 @@ class RBSheet extends PureComponent<Props, State> {
       },
       onPanResponderRelease: (e, gestureState) => {
         if (this.state.dialogHeight / 4 - gestureState.dy < 0) {
-          this.setState({animatedHeight: new Animated.ValueXY({x: 0, y: gestureState.dy})}, () => {
-            this.setModalVisible(false, () => this.props.onClose?.())
-          })
+          this.setModalVisible(false, gestureState.dy, () => this.props.onClose?.())
         } else {
           Animated.timing(pan, {
             toValue: {x: 0, y: 0},
@@ -146,7 +144,7 @@ class RBSheet extends PureComponent<Props, State> {
 
   open(callback?: () => void) {
     if (this.state.modalVisible) return callback?.()
-    this.setModalVisible(true, callback)
+    this.setModalVisible(true, 0, callback)
   }
 
   close(callback?: () => void) {
@@ -155,7 +153,7 @@ class RBSheet extends PureComponent<Props, State> {
       this.props.onClose?.()
     }
     if (!this.state.modalVisible) return close()
-    this.setModalVisible(false, callback)
+    this.setModalVisible(false, 0, callback)
   }
 
   renderCloseDraggableIcon() {
@@ -242,13 +240,13 @@ class RBSheet extends PureComponent<Props, State> {
         visible={modalVisible}
         supportedOrientations={SUPPORTED_ORIENTATIONS}
         onDismiss={() => {
-          this.setModalVisible(false, () => {
+          this.setModalVisible(false, 0, () => {
             this.props.onClose?.()
           })
         }}
         onRequestClose={() => {
           if (closeOnPressBack ?? true) {
-            this.setModalVisible(false, () => {
+            this.setModalVisible(false, 0, () => {
               this.props.onClose?.()
             })
           }
