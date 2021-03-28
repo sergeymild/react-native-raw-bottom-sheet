@@ -95,7 +95,7 @@ class RBSheet extends PureComponent<Props, State> {
     if (visible) {
       this.setState({modalVisible: visible}, callback)
     } else {
-      this.setState({animateFinished: false}, () => {
+      this.setState({animateFinished: false, animatedHeight: new Animated.ValueXY({x: 0, y: 0})}, () => {
         Animated.timing(this.state.animatedHeight, {
           useNativeDriver: true,
           toValue: {x: 0, y: this.state.dialogHeight},
@@ -196,6 +196,10 @@ class RBSheet extends PureComponent<Props, State> {
 
     const allowDrag = this.props.dragFromTopOnly ?? false
     const handler = !allowDrag && this.panResponder?.panHandlers
+    let transform = undefined
+    if (!this.state.animateFinished) {
+      transform = {transform: this.state.animatedHeight.getTranslateTransform()}
+    }
     return (
       <Animated.View
         {...handler}
@@ -203,8 +207,8 @@ class RBSheet extends PureComponent<Props, State> {
           panStyle,
           styles.container,
           {height: this.state.wasLayout ? this.state.dialogHeight : 'auto'},
-          !this.state.animateFinished ? {transform: this.state.animatedHeight.getTranslateTransform()} : undefined,
-
+          // @ts-ignore
+          transform,
           this.props.container,
         ]}>
         {this.renderCloseDraggableIcon()}
