@@ -9,9 +9,8 @@ import {
   StyleProp,
   View,
   ViewStyle,
+  TouchableOpacity
 } from 'react-native'
-
-import AppTouchableOpacity from 'src/components/common/AppTouchableOpacity'
 
 import styles from './style'
 
@@ -254,7 +253,7 @@ class RBSheet extends PureComponent<Props, State> {
           enabled={keyboardAvoidingViewEnabled ?? false}
           behavior='padding'
           style={[styles.wrapper, this.props.wrapper]}>
-          <AppTouchableOpacity
+          <TouchableOpacity
             style={styles.mask}
             activeOpacity={1}
             onPress={() => (closeOnPressMask ?? true ? this.close() : null)}
