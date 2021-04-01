@@ -14,7 +14,7 @@ const RbSheetView: React.FC<Props> = (props) => {
       onLayout={(e) => {
         if (wasLayout.current) return
         wasLayout.current = true
-        context.setHeight(e.nativeEvent.layout.height)
+        context.setHeight(e.nativeEvent.layout.height + 25)
       }}>
       {props.children}
     </View>
