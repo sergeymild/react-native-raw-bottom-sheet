@@ -13,6 +13,7 @@ import {
 } from 'react-native'
 
 import styles from './style'
+import { number } from "prop-types";
 
 const SUPPORTED_ORIENTATIONS: Array<
   | 'portrait'
@@ -30,9 +31,10 @@ const SUPPORTED_ORIENTATIONS: Array<
 
 interface RBContextInterface {
   readonly setHeight: (height: number) => void
+  readonly getHeight: () => number
 }
 
-export const RBContext = createContext<RBContextInterface>({setHeight: () => {}})
+export const RBContext = createContext<RBContextInterface>({setHeight: () => {}, getHeight: () => 0})
 
 const getHeightFromPercent = (percent: string) => {
   const percentInt = parseInt(percent.replace('%', ''), 10)
@@ -89,13 +91,13 @@ class RBSheet extends PureComponent<Props, State> {
     this.createPanResponder(props)
   }
 
-  setModalVisible(visible: boolean, y: number | undefined, callback?: () => void) {
+  setModalVisible(visible: boolean, y: number, callback?: () => void) {
     const {minClosingHeight, closeDuration} = this.props
     const {animatedHeight, pan} = this.state
     if (visible) {
       this.setState({modalVisible: visible}, callback)
     } else {
-      this.setState({animateFinished: false, animatedHeight: new Animated.ValueXY({x: 0, y: y ?? 0})}, () => {
+      this.setState({animateFinished: false, animatedHeight: new Animated.ValueXY({x: 0, y: y})}, () => {
         Animated.timing(this.state.animatedHeight, {
           useNativeDriver: true,
           toValue: {x: 0, y: this.state.dialogHeight},
@@ -216,11 +218,13 @@ class RBSheet extends PureComponent<Props, State> {
   }
 
   setHeight = (height: number) => {
-    const maxHeight = Math.min(height + 25, getHeightFromPercent('90%'))
     this.setState(
-      {wasLayout: true, dialogHeight: maxHeight, animatedHeight: new Animated.ValueXY({x: 0, y: maxHeight})},
+      {wasLayout: true, dialogHeight: height, animatedHeight: new Animated.ValueXY({x: 0, y: height})},
       this.animateShow,
     )
+  }
+  getHeight = () => {
+    return this.state.dialogHeight
   }
 
   render() {
