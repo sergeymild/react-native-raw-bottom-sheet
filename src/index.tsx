@@ -259,7 +259,7 @@ class RBSheet extends PureComponent<Props, State> {
         <KeyboardAvoidingView
           enabled={keyboardAvoidingViewEnabled ?? false}
           behavior='padding'
-          style={[styles.wrapper, this.props.wrapper]}>
+          style={[styles.wrapper, this.props.wrapper, {opacity: this.state.wasLayout ? 1 : 0}]}>
           <TouchableOpacity
             style={styles.mask}
             activeOpacity={1}
